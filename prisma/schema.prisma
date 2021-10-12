@@ -8,3 +8,40 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
+model Customer {
+  id       String   @id @default(cuid())
+  fullName String   @db.VarChar(255)
+  email    String   @db.VarChar(200)
+  address  Address?
+}
+
+model Address {
+  id           String   @id @default(cuid())
+  customerId   String   @unique
+  customer     Customer @relation(fields: [customerId], references: [id])
+  addressLine1 String   @db.VarChar(255)
+  addressLine2 String?  @db.VarChar(255)
+  zipCode      String   @db.VarChar(5)
+  city         String   @db.VarChar(150)
+  country      String   @db.VarChar(100)
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(255)
+  price       Int
+  stock       Int      @default(0)
+  salePrice   Int      @default(0)
+  categoryKey String   @db.VarChar(150)
+  category    Category @relation(fields: [categoryKey], references: [key])
+}
+
+model Category {
+  key                String     @id @db.VarChar(150)
+  name               String     @db.VarChar(150)
+  products           Product[]
+  parentCategoryKey  String?    @db.VarChar(150)
+  parentCategory     Category?  @relation(fields: [parentCategoryKey], references: [key])
+  childrenCategories Category[] @relation(name: "CategoryToCategory")
+}
